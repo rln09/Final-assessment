@@ -1,0 +1,46 @@
+API DESIGN STRATEGY
+GET /api/v1/menus will get all menu items
+{
+  "data": [
+    {
+      "id": "latte-123",
+      "name": "Vanilla Latte",
+      "description": "Espresso with steamed milk and vanilla syrup",
+      "category": "coffee",
+      "base_price": 4.99,
+      "customizations": [
+        { "name": "milk", "options": ["whole", "oat", "almond"] }
+      ],
+      "availability": {
+        "is_available": true,
+        "out_of_stock_until": null
+      },
+      "location_overrides": {
+        "store_456": { "price": 5.49 } // Location-specific pricing
+      }
+    }
+  ],
+  "meta": { "last_updated": "2024-06-20T09:00:00Z" }
+}
+
+GET /api/v1/menus/:item_id will get a single menu item
+
+GET /api/v1/locations/:location_id/menu will get menu by location
+{
+  "error": "Location not available",
+  "code": "location_inactive"
+}
+
+GET /api/v1/menus/:item_id/availability?location_id=store_456 will check item availability
+POST /api/v1/webhooks/inventory will check inventory
+
+REQUEST FROM POS
+{
+  "item_id": "latte-123",
+  "location_id": "store_456",
+  "stock_remaining": 12,
+  "timestamp": "2024-06-20T09:05:00Z"
+}
+RESPONSE
+{ "status": "inventory_updated" }
+
