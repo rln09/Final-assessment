@@ -1,0 +1,193 @@
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
+import MapView from './MapView'; // Assume this is our mapping library component
+import FilterPanel from './FilterPanel';
+import StoreList from './StoreList';
+import LoadingSkeleton from './LoadingSkeleton';
+import EmptyState from './EmptyState';
+import ErrorState from './ErrorState';
+
+const StoreLocator = () => {
+  // State management
+  const [stores, setStores] = useState([]);
+  const [filteredStores, setFilteredStores] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [filters, setFilters] = useState({
+    distance: 5, // miles
+    openNow: false,
+    amenities: {
+      wifi: false,
+      outdoorSeating: false,
+      veganOptions: false
+    }
+  });
+  
+  const { showBoundary } = useErrorBoundary();
+
+  // Fetch store data
+  useEffect(() => {
+    const fetchStores = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/coffee-shops');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setStores(data);
+        setFilteredStores(data); // Initial state shows all stores
+      } catch (err) {
+        setError(err.message);
+        showBoundary(err); // Report to error boundary
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStores();
+  }, [showBoundary]);
+
+  // Get user location for distance calculations
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (err) => {
+          console.warn('Geolocation error:', err);
+          // Continue without user location
+        }
+      );
+    }
+  }, []);
+
+  // Filter stores based on current filters
+  useEffect(() => {
+    if (stores.length === 0) return;
+
+    const filtered = stores.filter(store => {
+      // Distance filter
+      if (userLocation && filters.distance) {
+        const distance = calculateDistance(
+          userLocation.lat, userLocation.lng,
+          store.location.lat, store.location.lng
+        );
+        if (distance > filters.distance) return false;
+      }
+      
+      // Open now filter
+      if (filters.openNow && !isStoreOpen(store.hours)) {
+        return false;
+      }
+      
+      // Amenities filters
+      if (filters.amenities.wifi && !store.amenities.wifi) return false;
+      if (filters.amenities.outdoorSeating && !store.amenities.outdoorSeating) return false;
+      if (filters.amenities.veganOptions && !store.amenities.veganOptions) return false;
+      
+      return true;
+    });
+
+    setFilteredStores(filtered);
+  }, [stores, filters, userLocation]);
+
+  // Memoize sorted stores for performance
+  const sortedStores = useMemo(() => {
+    if (!userLocation) return filteredStores;
+    
+    return [...filteredStores].sort((a, b) => {
+      const distA = calculateDistance(
+        userLocation.lat, userLocation.lng,
+        a.location.lat, a.location.lng
+      );
+      const distB = calculateDistance(
+        userLocation.lat, userLocation.lng,
+        b.location.lat, b.location.lng
+      );
+      return distA - distB;
+    });
+  }, [filteredStores, userLocation]);
+
+  // Handle filter changes
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  }, []);
+
+  // Calculate distance between two coordinates (Haversine formula)
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    // Implementation omitted for brevity
+    return distanceInMiles;
+  };
+
+  // Check if store is currently open
+  const isStoreOpen = (hours) => {
+    // Implementation checks current time against hours
+    return isOpen;
+  };
+
+  // Accessibility: keyboard navigation handler
+  const handleKeyDown = useCallback((e, storeId) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      // Handle store selection
+      e.preventDefault();
+    }
+  }, []);
+
+  if (error) {
+    return <ErrorState error={error} onRetry={() => window.location.reload()} />;
+  }
+
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (sortedStores.length === 0) {
+    return <EmptyState onResetFilters={() => setFilters({
+      distance: 5,
+      openNow: false,
+      amenities: {
+        wifi: false,
+        outdoorSeating: false,
+        veganOptions: false
+      }
+    })} />;
+  }
+
+  return (
+    <div className="store-locator" role="region" aria-label="Coffee shop locator">
+      <div className="store-locator__container">
+        <FilterPanel 
+          filters={filters}
+          onChange={handleFilterChange}
+          userLocation={userLocation}
+        />
+        
+        <div className="store-locator__content">
+          <StoreList 
+            stores={sortedStores} 
+            onStoreSelect={handleStoreSelect}
+            onKeyDown={handleKeyDown}
+          />
+          
+          <MapView 
+            stores={sortedStores}
+            userLocation={userLocation}
+            accessibilityLabel="Map of coffee shop locations"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StoreLocator;
+
+
