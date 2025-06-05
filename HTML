@@ -1,0 +1,63 @@
+<!-- Using <header> instead of generic div - helps screen readers identify the page header/navigation area -->
+<header class="top-section" role="banner">
+  <!-- Using <h1> for the main site logo/link - important for SEO and screen reader navigation -->
+  <h1 class="site-logo">
+    <!-- Making logo a clickable link to homepage - standard e-commerce practice -->
+    <a href="/" aria-label="TechStore Pro - Home">TechStore Pro</a>
+  </h1>
+  
+  <!-- Using <nav> for navigation - helps screen readers identify navigation sections -->
+  <nav class="links" aria-label="Main navigation">
+    <!-- Using proper list structure for navigation items - better for screen readers to understand the number of items -->
+    <ul>
+      <li><a href="/" class="link-item" aria-current="page">Home</a></li> <!-- aria-current indicates current page -->
+      <li><a href="/products" class="link-item">Products</a></li>
+      <!-- Adding screen reader text for cart count - makes it clearer for non-visual users -->
+      <li>
+        <a href="/cart" class="link-item">
+          <span aria-hidden="true">Cart (3)</span>
+          <span class="sr-only">Cart, 3 items</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<!-- Using <main> for primary content - helps screen readers skip to main content -->
+<main class="middle-content" id="main-content" tabindex="-1"> <!-- tabindex allows programmatic focus -->
+  <!-- Using proper heading hierarchy - important for screen reader navigation -->
+  <h2>Gaming Laptop - $1,299</h2>
+  
+  <!-- Using <section> for product description - semantic grouping of related content -->
+  <section class="text-block" aria-labelledby="product-description-heading">
+    <h3 id="product-description-heading" class="sr-only">Product description</h3> <!-- Hidden heading for screen readers -->
+    <p>High-performance gaming laptop with RTX 4060.</p>
+    <!-- Making call-to-action more accessible -->
+    <p><a href="#purchase-options" class="cta-link">Click here to buy now!</a></p>
+  </section>
+  
+  <!-- Adding proper image alt text - critical for screen readers and SEO -->
+  <figure class="image-box">
+    <img src="laptop.jpg" alt="Front view of Gaming Laptop with RTX 4060, showing keyboard and screen">
+    <!-- Could add <figcaption> here if needed for image credit/description -->
+  </figure>
+  
+  <!-- Using <section> for purchase options - semantic grouping -->
+  <section id="purchase-options" class="button-area" aria-labelledby="purchase-options-heading">
+    <h3 id="purchase-options-heading" class="sr-only">Purchase options</h3>
+    
+    <!-- Using actual <button> elements instead of divs - proper semantics and keyboard accessibility -->
+    <button type="button" class="buy-button" aria-label="Add Gaming Laptop to cart">
+      Add to Cart
+    </button>
+    
+    <!-- Adding proper labels and states for wishlist button -->
+    <button type="button" class="wishlist-btn" aria-pressed="false" aria-label="Add to wishlist">
+      <span aria-hidden="true">♥</span>
+      <span class="sr-only">Add to wishlist</span>
+    </button>
+  </section>
+</main>
+
+<!-- Hidden element for screen readers to announce dynamic content changes -->
+<div aria-live="polite" class="sr-only"></div>
