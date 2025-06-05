@@ -27,3 +27,23 @@ Menu changes (e.g., seasonal drinks) update everywhere instantly.
 New locations just tap into the same API.
 No emergency fixes if WP updates break digital menus.
 
+CROSS PLATFORM CONTENT CONSISTENCY
+Structured Content Workflow
+a) Content Taxonomy & Field Design
+Platform-Specific Fields:
+marketing_description (Web)
+menu_board_description (Short, <20 words)
+location_pricing (Array of store IDs + prices)
+
+b)Editorial Workflow
+Role-Based Access:
+Marketing team edits web_copy.
+Store managers edit location_prices.
+Validation Rules:
+Require menu_board_copy if item is flagged for in-store displays.
+
+Technical Implementation
+a) Platform-Aware API Endpoints
+b) Content Transformation Middleware
+c) Caching Strategy
+
