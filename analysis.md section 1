@@ -1,0 +1,35 @@
+a. KEY IMPROVEMENTS
+Semantic Structure: Using <header>, <nav>, <main>, <section>, and <figure> ensures screen readers understand page structure. Proper heading hierarchy (h1-h3) creates a logical document outline for clear navigation.
+Hidden Content for screen readers: sr-only class (should be implemented in CSS) hides elements visually but keeps them for screen readers. Section headings provide context even when hidden visually.
+Navigation Improvements: List structure (ul/li) for navigation items helps screen readers announce the number of items. Aria-current="page" indicates which page the user is currently on.
+Focus Management: tab index="-1" on main content allows programmatic focus for better keyboard navigation.
+Accessible Interactive Elements: Real <button> elements instead of divs - keyboard operable and proper semantics. Aria-pressed for the wishlist button indicates toggle state. Aria-label provides clear purpose for buttons without visible text.
+Image Accessibility: Descriptive alt text helps screen reader users understand the image content. <figure> provides semantic meaning for the image container.
+Dynamic Content: aria-live region will help announce cart updates or other dynamic changes.Separate visual and screen reader text for cart count.
+b. ACCESSIBILITY ANALYSIS
+VIOLATION 1: Mising 'alt' attribute for product image
+<img src="laptop.jpg">
+IMPACT: Screen reader users receive no information about the product image. Users with slow connections who have images disabled see empty space with no context. Fails WCAG 2.1 Success Criterion 1.1.1 (Non-text Content) which requires text alternatives
+AFFECTED USERS: Low-vision users who might miss visual details. Blind users relying on screen readers. Users on text-only browsers or limited bandwidth
+VIOLATION 2: Using 'div' elements for interactive controls insetad of proper <button> elements
+<div class="buy-button">Add to Cart</div>
+<div class="wishlist-btn">♥</div>
+IMPACT: uttons are not focusable via keyboard navigation. Screen readers won't announce them as interactive controls
+AFFECTED USERS: Keyboard-only users (including motor-impaired users). Screen reader users who won't recognize these as actionable elements. Users who rely on voice control software
+VIOLATION 3: Lack of semantic landmarks & no proper heading hierarchy
+<div class="top-section">...</div>
+<div class="middle-content">...</div>
+IMPACT: Screen reader users can't efficiently navigate page sections. No programmatic way to skip to main content. Fails WCAG 2.1 Success Criterion 1.3.1 (Info and Relationships) for semantic structure. Fails 2.4.1 (Bypass Blocks) for navigation efficiency.
+AFFECTED USERS:Users with cognitive disabilities who benefit from clear structure. Screen reader users who rely on landmarks for navigation. Keyboard users who need efficient content skipping.
+
+a.PERFORMANCE CONSIDERATIONS
+CSS Grid Selection: Chosen over Flexbox for its two-dimensional control and cleaner responsive implementation, more maintainable for future adjustments, auto-fill with minmax() creates intrinsic responsiveness.
+Performance Considerations: Width/height attributes prevent layout shifts, lazy loading images with loading="lazy", Optimized transitions with CSS variables
+Accessibility Features: Semantic HTML structure (article, main, header), visually hidden text for screen readers, sufficient touch targets (44px minimum)
+b.CRITICAL DESIGN DECISION ANALYSIS
+Breakpoint Justification: 600px Tablet Breakpoint- Based on data from week 2's responsive CCS design showing 600px as common tablet portrait width, balances product visibility with comfortable touch targets
+900px Desktop Breakpoint- Aligns with 12-col grid systems at 992px (we chose 900px for earlier adaptation), three columns maintain readability (studies show max 75ch line length)
+UX/Business Balance: Product Visibility- Three columns on desktop maximize above-fold product exposure, progressive disclosure on smaller devices prevents cognitive overload. 
+Readability- Single column on mobile prevents text scaling issues, consistent card heights maintain visual rhythm
+c. AI COLLABORATION WITH COURSE INTEGRATION
+Used AI to generate initial CSS Grid layout by prompting: ‘Create a responsive CSS Grid layout following CSS Grid principles provided
