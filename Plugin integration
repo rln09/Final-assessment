@@ -1,0 +1,85 @@
+a.Custom Post Type to stores all specials with standard WP fields (title, description, featured image).
+
+use a field called special_price Type:Number to display discounted price.	floatval(), min="0"
+use a field called original_price	Type:Number (read-only)	to show savings.	auto-filled from POS
+use a field called start_date	Type:Date Picker Schedule activation	
+use a field called end_date	Type:Date Picker	Auto-expire special	strtotime() >= start_date
+use a field called inventory_id	Type:Text	POS system 
+use a field called stock_quantity	Type:Number	Sync with POS inventory	absint()
+use a field called dietary_flags	Checkbox	Vegan/GF/etc.	sanitize_text_field()
+This structure is user-friendly for non-technical users. It is simple UI with date pickers, checkboxes.
+
+USER INTERFACE FOR NON_TECHNICAL STAFF
+add_filter('manage_weekly_special_posts_columns', function($columns) {
+    return [
+        'title' => 'Special Name',
+        'special_price' => 'Price',
+        'dates' => 'Active Dates', // Custom column
+        'stock' => 'Remaining'
+    ];
+});
+
+FOR EXPIRED SPECIALS AND SCHEDULING
+add_action('wp_scheduled_posts', function() {
+    $expired = get_posts([
+        'post_type' => 'weekly_special',
+        'meta_query' => [[
+            'key' => 'end_date',
+            'value' => date('Y-m-d'),
+            'compare' => '<',
+            'type' => 'DATE'
+        ]]
+    ]);
+    foreach ($expired as $post) {
+        wp_update_post(['ID' => $post->ID, 'post_status' => 'draft']);
+    }
+});
+
+SECURITY CONSIDERATIONS
+POS API Security
+Input Sanitization
+Restrict CPT access with roles
+
+b.Plugin vs Theme Function
+Recommended Approach- PLUGIN 
+1.Long-Term Maintenance & Theme Independence 
+Business Need - The bakery may update their theme for seasonal redesigns or rebranding.
+Plugin Benefits- Functionality remains intact during theme changes, clear separation of concerns (features vs. design).
+Theme Function Risks- Moving to a new theme could break weekly specials logic, requires re-implementation if changing themes.
+Impact- Prevents disruption to promotions during holiday theme updates (e.g., Christmas redesign).
+
+2. Client Needs (Non-Technical Staff & Future Scalability)
+Business Need- Staff must manage specials without developer help.
+Plugin Benefits-Can include a custom admin UI (e.g. simplified metaboxes), easily extendable, e.g. adding POS integrations later.
+Theme Function Limitations- Tightly coupled with theme files, harder to modify independently.
+Impact- Staff can update specials without fear of breaking the website
+
+3. Security & Updates
+Business Need- Safe, stable updates without conflicts.
+Plugin Benefits- Version-controlled separately from theme, security patches can be applied without touching theme files.
+Theme Function Risks-Mixing business logic with presentation increases vulnerability surface.
+Impact-If a POS API update is needed, it can be patched without waiting for a theme update.
+
+4. Reusability & Portability
+Business Need- Potential for multi-location expansion.
+Plugin Benefits-Can be reused across multiple sites, easily disabled if feature is deprecated.
+Theme Function Drawbacks- Locked into a single theme’s ecosystem.
+Impact- If the bakery opens a second location, the plugin can be installed without rebuilding functionality.
+
+AI-ASSISTED DEVELOPMENT
+1. AI Prompts Incorporating WordPress Coding Standards(week 8 & 10)
+Prompt Example: "Generate a custom post type registration for 'weekly_special' following WordPress PHP coding standards. Use proper escaping, nonces, and prefix all functions with 'bakery_'. Include a sanitization callback for the 'inventory_limit' meta field."
+This will ensure that AI follows function prefixing, to avoid collisions, nonce verification (security).
+
+2. Directing AI to Follow Security Practices
+Prompt Example: "Write a POS API integration function for the weekly specials plugin. Include OAuth2 authentication, input sanitization for the 'price_override' field, and validation for POS response data. Reference WordPress transients for caching."
+Validated Against Course Standards:Input Sanitization (absint(), sanitize_text_field()), Nonce checks for admin forms, Escaping output (esc_html(), esc_attr())
+
+3. Ensuring Accessibility Compliance
+Prompt Example:"Generate a frontend template for weekly specials that includes ARIA labels for screen readers, proper heading hierarchy (h2 for special title, h3 for price), and a focusable 'Order Now' button with a minimum 44px touch target."
+Modifications to AI Output-Replace AI’s generic <div> buttons with <button> elements, add aria-live="polite" for dynamic stock updates.
+
+4.Validation Against Course Best Practices
+Process:
+Cross Check with Course Examples- Compare AI’s WP_Query args with data fetching examples
+Lighthouse + WPCS scan- running AI-generated templates through accessibility: Lighthouse audit, and security: PHPCS with WordPress coding standards
