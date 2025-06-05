@@ -1,0 +1,46 @@
+DEVELOPMENT ENVIRONMENT STRATEGY 
+1. Zero Downtime During Peak Hours (Revenue Protection)
+Advantage: LocalWP allows developing and offline testing, which eliminates the risk of breaking the live site during business-critical hours.
+Business Impact: 
+Avoids loss of sales-The bakery’s current site likely drives foot traffic via daily specials or seasonal menus. Even minor live issues could cause errors that turn away customers.
+Preserves reputation- A site crash during peak hours could damage customers trust in their online ordering system.
+Technical Alignment: Test new features, such as online ordering, in isolation without affecting the live payment processing system.
+
+2. Safe Payment Integration Testing (Risk Mitigation)
+Advantage: LocalWP’s staging-like environment lets developers simulate transactions without processing real payments or exposing customer data.
+Business Impact:
+Prevents failed transactions-Testing gateways (e.g., Stripe, Square) locally avoids declined orders or duplicate charges on the live site.
+Compliance security-Avoids PCI-DSS violations during development by keeping test transactions offline.
+Technical Alignment: Use LocalWP’s Live Links to share test payment flows with the bakery owner for approval before going live.
+
+3. Efficient Workflow for Non-Technical Teams
+Advantage:LocalWP’s one-click WordPress setup and pre-configured PHP/MySQL reduce dependency on external developers for minor updates.
+Business Impact:
+Faster launches-The bakery staff can preview blog posts or testimonials locally before publishing, reducing back-and-forth with freelancers.
+Cost control-Avoids paying for staging hosting or developer hours spent debugging live-site conflicts.
+Technical Alignment: LocalWP’s Blueprints feature lets the bakery save their ideal theme/plugin setup for future updates (e.g., seasonal menu templates).
+
+WORDPRESS ARCHITECTURE DECISION
+Recommended Approach:Custom Post Types (CPTs) for Products and Testimonials & default posts for blog content
+1.Content Management Workflow
+Products (Pastries/Cakes)- Requires unique fields (price, ingredients, dietary tags). CPT with Advanced Custom Fields. Separate admin menu (Products vs. Posts) prevents staff confusion when adding new items.
+Testimonials-Needs structured data such as customer name, rating, photo, and CPT ensures testimonials don’t mix with blog posts.
+Blog Posts-Default posts are enough (categories/tags handle recipe updates, bakery news).
+Business Impact-Employees can manage products/testimonials without accidentally altering blog content.
+
+2. SEO Implications
+Dedicated URL Structures- /products/croissant/ vs. /blog/croissant-recipe/ avoids keyword cannibalization.Testimonials can be excluded from search if needed.
+Schema Markup- CPTs enable product-specific schema (price, availability) for snippets.
+Default Posts-Categories (/blog/recipes/, /blog/events/) maintain SEO-friendly hierarchies.
+Business Impact-Products rank separately from blog content.
+
+3. Future Scalability
+CPTs are flexible because:
+Adding Content Types-Future needs (e.g., Workshops or Catering) can be new CPTs without hacking Posts.
+Performance- Separating products/posts reduces database bloat.
+Theme Development-CPT-specific templates keep code modular.
+
+THEME DEVELOPMENT PLANNING
+For Products: single-product.php → single.php → singular.php → index.php
+For Blog Posts: single-post.php → single.php → singular.php → index.php
+For Testimonials: archive-testimonial.php → archive.php → index.php
